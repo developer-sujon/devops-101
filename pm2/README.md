@@ -26,3 +26,7 @@
 ### Restart pm2 server
 
 `pm2 restart myapp`
+
+### Delete pm2 server
+
+` pm2 delete myapp`
