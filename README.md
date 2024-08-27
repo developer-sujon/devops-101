@@ -46,4 +46,12 @@ This guide provides instructions for configuring various components on an Ubuntu
 
 - [SSH Configuration](/ssh)
 
+## Mongodb Configuration
+
+- [Mongodb Configuration](/mongodb/)
+
+## SCP Configuration
+
+- [SCP Configuration](/scp/)
+
 Explore the links above for detailed instructions on configuring and managing each component. These guides are designed to help you in your DevOps journey on an Ubuntu VPS.
