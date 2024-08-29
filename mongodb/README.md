@@ -107,11 +107,33 @@ This guide provides instructions for installing MongoDB, creating a user, and co
    sudo nano /etc/mongod.conf
    ```
 
-6. **Bind to All IP Addresses:**
+6. **Bind to All IP Addresses and change mongodb default port:**
 
-   ```bash
-    bindIp: 0.0.0.0
-   ```
+- Bind to All IP Addresses Look for the net section and verify that bindIp is set to 127.0.0.1:
+
+  ```bash
+     net:
+     port: 27017
+     bindIp: 127.0.0.1
+  ```
+
+7. Check MongoDB Logs
+
+```bash
+     sudo cat /var/log/mongodb/mongod.log
+```
+
+## MongoDB Connection Details
+
+To connect to your MongoDB instance using MongoDB Compass, follow the instructions below.
+
+### Connection String
+
+Use the following connection string in MongoDB Compass, replacing `<username>`, `<password>`, and `<host>:<port>` with your actual credentials and server details:
+
+```plaintext
+mongodb://<username>:<password>@<host>:<port>/?authSource=admin
+```
 
 ## 3. Setting Up a Replica Set
 
