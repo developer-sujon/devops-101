@@ -135,6 +135,12 @@ Use the following connection string in MongoDB Compass, replacing `<username>`, 
 mongodb://<username>:<password>@<host>:<port>/?authSource=admin
 ```
 
+7. **Connect to MongoDB Remotely:**
+
+   ```bash
+    bindIp: 0.0.0.0
+   ```
+
 ## 3. Setting Up a Replica Set
 
 ### Starting Nodes
