@@ -1,8 +1,8 @@
-# MongoDB Installation and Replica Set Setup
+# MongoDB Installation Guide
 
 ## Introduction
 
-This guide provides step-by-step instructions for installing MongoDB, creating a user, and configuring a replica set on Ubuntu Server. It covers both standalone and configuration file-based deployments.
+This guide provides step-by-step instructions for installing MongoDB on an Ubuntu Server. It is designed to help you set up MongoDB quickly and ensure it runs correctly.
 
 ## Prerequisites
 
@@ -12,65 +12,69 @@ This guide provides step-by-step instructions for installing MongoDB, creating a
 
 ## Step 1: Install MongoDB
 
-1. **Import the MongoDB GPG Key:**
+### 1. Import the MongoDB GPG Key
 
-   ```bash
-   wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-   ```
+```bash
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+```
 
-2. **Create a MongoDB list file:**
+### 2. Create a MongoDB List File
 
-   ```bash
-   echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-   ```
+```bash
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+```
 
-3. **Update the package list and install MongoDB:**
+### 3. Update the Package List and Install MongoDB
 
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y mongodb-org
-   ```
+```bash
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
 
-4. **Start MongoDB:**
+### 4. Start MongoDB
 
-   ```bash
-   sudo systemctl start mongod
-   ```
+```bash
+sudo systemctl start mongod
+```
 
-5. **Enable MongoDB to start on boot:**
+### 5. Enable MongoDB to Start on Boot
 
-   ```bash
-   sudo systemctl enable mongod
-   ```
+```bash
+sudo systemctl enable mongod
+```
 
-6. **Check the status of MongoDB:**
+### 6. Check the Status of MongoDB
 
-   ```bash
-   sudo systemctl status mongod
-   ```
+```bash
+sudo systemctl status mongod
+```
 
-7. **Ensure Correct File Permissions:**
+### 7. Ensure Correct File Permissions (Optional)
 
-   ```bash
-   sudo chown -R mongodb:mongodb /var/lib/mongodb
-   sudo chown -R mongodb:mongodb /var/log/mongodb
-   ```
+```bash
+sudo chown -R mongodb:mongodb /var/lib/mongodb
+sudo chown -R mongodb:mongodb /var/log/mongodb
+```
 
-8. **Restart MongoDB:**
+### 8. Restart MongoDB (If Necessary)
 
-   ```bash
-   sudo systemctl restart mongod
-   ```
+```bash
+sudo systemctl restart mongod
+```
 
-9. **Reinstall MongoDB (If Necessary):**
+### 9. Reinstall MongoDB (If Needed)
 
-   ```bash
-   sudo apt-get purge mongodb-org*
-   sudo apt-get autoremove
-   sudo apt-get install -y mongodb-org
-   ```
+If you encounter installation issues, you can remove and reinstall MongoDB:
 
-10. **MongoDB.service failed with result exit-code**
+```bash
+sudo apt-get purge mongodb-org*
+sudo apt-get autoremove
+sudo apt-get install -y mongodb-org
+```
+
+### 10. Resolve Common Errors
+
+If MongoDB fails to start with a socket-related error:
 
 ```bash
 sudo rm -rf /tmp/mongodb-27017.sock
@@ -80,100 +84,84 @@ sudo systemctl status mongod
 
 ## Step 2: Creating a MongoDB User and Configuring `mongod.conf`
 
-1. **Access the MongoDB shell:**
+### 1. Access the MongoDB Shell
 
-   ```bash
-   mongosh
-   ```
+```bash
+mongosh
+```
 
-2. **Switch to the `admin` database:**
+### 2. Switch to the `admin` Database
 
-   ```javascript
-   use admin
-   ```
+```javascript
+use admin
+```
 
-3. **Create a new user with root privileges:**
+### 3. Create a New User with Root Privileges
 
-   ```javascript
-   db.createUser({
-     user: "username",
-     pwd: "password",
-     roles: [{ role: "root", db: "admin" }],
-   });
-   ```
+```javascript
+db.createUser({
+  user: "username",
+  pwd: "password",
+  roles: [{ role: "root", db: "admin" }],
+});
+```
 
-4. **Exit the MongoDB shell:**
+### 4. Exit the MongoDB Shell
 
-   ```javascript
-   exit;
-   ```
+```javascript
+exit;
+```
 
-5. **Configure MongoDB to Allow Remote Connections:**
+### 5. Configure MongoDB to Allow Remote Connections
 
-   ```bash
-   sudo nano /etc/mongod.conf
-   ```
+Edit the `mongod.conf` file:
 
-6. **Bind to All IP Addresses and Change the MongoDB Default Port:**
+```bash
+sudo nano /etc/mongod.conf
+```
 
-   In the `net` section, set `bindIp` to `127.0.0.1`:
+Update the `net` section to bind to all IP addresses:
 
-   ```yaml
-   net:
-     port: 27017
-     bindIp: 127.0.0.1
-   ```
+```yaml
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+```
 
-7. **Check MongoDB Logs:**
+### 6. Restart MongoDB to Apply Changes
 
-   ```bash
-   sudo cat /var/log/mongodb/mongod.log
-   ```
+```bash
+sudo systemctl restart mongod
+```
 
 ## Step 3: MongoDB Connection Details
 
-To connect to your MongoDB instance using MongoDB Compass, follow these instructions:
+### 1. Connection String for MongoDB Compass
 
-### Connection String
-
-Use the following connection string in MongoDB Compass, replacing `<username>`, `<password>`, and `<host>:<port>` with your actual credentials and server details:
+Use the following connection string, replacing `<username>`, `<password>`, and `<host>` with your credentials and server details:
 
 ```plaintext
-mongodb://<username>:<password>@<host>:<port>/?authSource=admin
+mongodb://<username>:<password>@<host>:27017/?authSource=admin
 ```
 
-### MongoDB Connection Error Troubleshooting
+### 2. Connecting via Command Line
 
-If you encounter a connection error due to MongoDB running on a non-default port, follow these steps:
+If using a custom port (e.g., `25017`):
 
-1. **Update MongoDB Connection String:**
-
-   If you changed the port to `25017`, update your connection string accordingly:
-
-   ```bash
-   mongodb://127.0.0.1:25017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.0
-   ```
-
-2. **Connect to MongoDB with an Admin User:**
-
-   ```bash
-   mongosh "mongodb://<username>:<password>@<hostname>:<port>/?authSource=admin"
-   ```
+```bash
+mongosh "mongodb://<username>:<password>@<host>:25017/?authSource=admin"
+```
 
 ## Step 4: Changing and Deleting the MongoDB Admin Password
 
 ### 1. Authenticate as an Admin
 
-If you didn't authenticate directly in the connection string, authenticate after connecting:
-
 ```javascript
 use admin
-db.auth("admin", "<current_password>")
+db.auth("admin", "<current_password>");
 ```
 
-### 2. Change the Password
-
-Change the password for any user, including the `admin` user:
+### 2. Change the Admin Password
 
 ```javascript
 db.updateUser("admin", { pwd: "<new_password>" });
@@ -181,158 +169,34 @@ db.updateUser("admin", { pwd: "<new_password>" });
 
 ### 3. Verify the Password Change
 
-Disconnect and reconnect using the new password to verify the change:
+Disconnect and reconnect with the new password:
 
 ```bash
-mongosh "mongodb://admin:NewSecurePassword123@40.90.161.121:28017/?authSource=admin"
+mongosh "mongodb://admin:<new_password>@<host>:27017/?authSource=admin"
 ```
 
-### 4. Drop a MongoDB User
+### 4. Delete a MongoDB User
 
-To delete a user:
+To drop a user:
 
 ```javascript
-db.dropUser("USER");
+db.dropUser("username");
 ```
 
-### 5. Close the Connection
-
-After confirming the password change, safely close the connection:
+### 5. Safely Close the Connection
 
 ```bash
 exit
 ```
 
-# 6 MongoDB Replica Set Local Ubuntu Machine Setup Guide
+## Notes
 
-## Introduction
-
-This guide provides step-by-step instructions to set up a MongoDB replica set on a local Ubuntu server. A replica set is a group of MongoDB instances that maintain the same data set, providing redundancy and high availability.
-
-## Prerequisites
-
-- Ubuntu server with MongoDB installed.
-- Basic knowledge of MongoDB and Ubuntu command-line operations.
-
-## Step 1: Create Directories for MongoDB Instances
-
-Create separate directories for each MongoDB instance’s data and log files:
+- **Security:** Ensure you configure strong access controls if exposing MongoDB to the internet.
+- **Logs:** Check MongoDB logs for errors:
 
 ```bash
-sudo mkdir -p /data/rs1 /data/rs2 /data/rs3
-sudo mkdir -p /var/log/mongodb
+sudo cat /var/log/mongodb/mongod.log
 ```
 
-## Step 2: Configure MongoDB Instances
+This completes the MongoDB installation process. For additional configurations, refer to the MongoDB documentation.
 
-Create configuration files for each MongoDB instance.
-
-### \`mongod1.conf\`
-
-```yaml
-storage:
-  dbPath: /data/rs1
-systemLog:
-  destination: file
-  path: /var/log/mongodb/mongod1.log
-net:
-  port: 27001
-  bindIp: localhost
-replication:
-  replSetName: "rs0"
-```
-
-### \`mongod2.conf\`
-
-```yaml
-storage:
-  dbPath: /data/rs2
-systemLog:
-  destination: file
-  path: /var/log/mongodb/mongod2.log
-net:
-  port: 27002
-  bindIp: localhost
-replication:
-  replSetName: "rs0"
-```
-
-### \`mongod3.conf\`
-
-```yaml
-storage:
-  dbPath: /data/rs3
-systemLog:
-  destination: file
-  path: /var/log/mongodb/mongod3.log
-net:
-  port: 27003
-  bindIp: localhost
-replication:
-  replSetName: "rs0"
-```
-
-## Step 3: Start the MongoDB Instances
-
-Start each MongoDB instance using the configuration files:
-
-```bash
-sudo mongod --config /etc/mongod1.conf --fork
-sudo mongod --config /etc/mongod2.conf --fork
-sudo mongod --config /etc/mongod3.conf --fork
-```
-
-## Step 4: Initiate the Replica Set
-
-1. **Connect to the first MongoDB instance:**
-
-   ```bash
-   mongosh --port 27001
-   ```
-
-2. **Initiate the replica set:**
-
-   ```javascript
-   rs.initiate({
-     _id: "rs0",
-     members: [
-       { _id: 0, host: "localhost:27001" },
-       { _id: 1, host: "localhost:27002" },
-       { _id: 2, host: "localhost:27003" },
-     ],
-   });
-   ```
-
-3. **Check the status of the replica set:**
-
-   ```javascript
-   rs.status();
-   ```
-
-## Step 5: Verify the Replica Set
-
-To ensure that everything is set up correctly, you can connect to any of the MongoDB instances and check the replica set status.
-
-```bash
-mongo --port 27001
-```
-
-Inside the MongoDB shell, run:
-
-```javascript
-rs.status();
-```
-
-## Step 6: Access the Replica Set
-
-To connect to the replica set from your application or another MongoDB shell, use the following connection string:
-
-```bash
-mongo --host "localhost:27001,localhost:27002,localhost:27003" --replSet rs0
-```
-
-## Important Notes
-
-- **Backup:** Always back up your MongoDB database before making changes to critical user accounts.
-- **Special Characters:** URL-encode special characters in passwords when using them in connection strings.
-- **Security:** Use strong passwords to secure your MongoDB instance.
