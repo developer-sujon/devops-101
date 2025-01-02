@@ -176,3 +176,4 @@ Here are some essential Nginx commands to manage the server:
    ```bash
    sudo systemctl disable nginx
    ```
+
