@@ -32,7 +32,7 @@ Ensure the following are installed and configured on your server:
    # HTTPS server block
    server {
        listen 443 ssl http2; # Listen on port 443 for HTTPS
-       server_name your-domain.com; # Replace with your domain name
+       server_name your-domain.com www.your-domain.com; # Replace with your domain name
 
        # SSL certificate files
        ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
@@ -55,9 +55,10 @@ Ensure the following are installed and configured on your server:
 
        # Location block for serving the application
        location / {
-           root /var/www/your-domain.com; # Path to your application's root directory
-           index index.html;
-           try_files $uri $uri/ =404;
+           proxy_pass http://localhost:4000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
        }
 
        # OCSP stapling for SSL optimization
